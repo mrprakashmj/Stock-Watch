@@ -47,10 +47,10 @@ export default function InventoryTable({ items, onUpdateClick }: InventoryTableP
                     </TableCell>
                     <TableCell className="text-right">{item.quantity.toLocaleString()}</TableCell>
                     <TableCell className="text-right">
-                      {item.price.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
+                      {item.price.toLocaleString('en-IN', { style: 'currency', currency: 'INR' })}
                     </TableCell>
                     <TableCell className="text-right">
-                      {(item.quantity * item.price).toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
+                      {(item.quantity * item.price).toLocaleString('en-IN', { style: 'currency', currency: 'INR' })}
                     </TableCell>
                     <TableCell className="text-center">
                       <Button variant="ghost" size="icon" onClick={() => onUpdateClick(item)}>

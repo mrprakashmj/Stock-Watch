@@ -2,7 +2,7 @@
 
 import { useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Package, CircleDollarSign } from 'lucide-react';
+import { Package, IndianRupee } from 'lucide-react';
 import type { StockItem } from '@/types';
 
 interface StatsCardsProps {
@@ -31,13 +31,13 @@ export default function StatsCards({ items }: StatsCardsProps) {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Total Stock Value</CardTitle>
-          <CircleDollarSign className="h-4 w-4 text-muted-foreground" />
+          <IndianRupee className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">
-            {totalValue.toLocaleString('en-US', {
+            {totalValue.toLocaleString('en-IN', {
               style: 'currency',
-              currency: 'USD',
+              currency: 'INR',
             })}
           </div>
           <p className="text-xs text-muted-foreground">Estimated value of all inventory</p>
