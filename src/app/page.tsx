@@ -8,6 +8,8 @@ import UpdateItemDialog from '@/components/update-item-dialog';
 import StatsCards from '@/components/stats-cards';
 import { Package } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
 
 const initialStock: StockItem[] = [
@@ -60,6 +62,14 @@ export default function Home() {
           <div className="flex items-center gap-2">
             <Package className="h-6 w-6 text-primary" />
             <h1 className="font-headline text-2xl font-bold">StockWatch</h1>
+          </div>
+          <div className="flex items-center gap-4">
+            <Button variant="ghost" asChild>
+              <Link href="/login">Login</Link>
+            </Button>
+            <Button asChild>
+              <Link href="/signup">Sign Up</Link>
+            </Button>
           </div>
         </div>
       </header>
