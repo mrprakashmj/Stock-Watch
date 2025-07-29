@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { StockItem } from '@/types';
 import AddItemForm from '@/components/add-item-form';
 import InventoryTable from '@/components/inventory-table';
@@ -25,11 +25,25 @@ const initialStock: StockItem[] = [
 
 export default function Home() {
   const { user, loading } = useAuth();
-  const [stockItems, setStockItems] = useState<StockItem[]>(initialStock);
+  const [stockItems, setStockItems] = useState<StockItem[]>([]);
   const [isUpdateDialogOpen, setUpdateDialogOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<StockItem | null>(null);
 
+  useEffect(() => {
+    // Here you would typically fetch data from your backend
+    // For now, we'll use the initialStock data if the user is logged in.
+    if (user) {
+      setStockItems(initialStock);
+    } else {
+      setStockItems([]);
+    }
+  }, [user]);
+
   const handleAddItem = (newItem: Omit<StockItem, 'id' | 'description'> & { description?: string }) => {
+    if (!user) {
+      toast({ title: 'Please log in', description: 'You need to be logged in to add items.', variant: 'destructive' });
+      return;
+    }
     const item: StockItem = {
       ...newItem,
       description: newItem.description || '',
@@ -113,19 +127,45 @@ export default function Home() {
       </header>
 
       <main className="container mx-auto p-4 md:p-6 lg:p-8">
-        <div className="mb-8">
-          <h2 className="font-headline text-3xl font-bold mb-4">Inventory Overview</h2>
-          <StatsCards items={stockItems} />
-        </div>
+        {loading ? (
+            <div className="space-y-4">
+              <Skeleton className="h-24 w-full" />
+              <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+                <Skeleton className="h-96 w-full lg:col-span-1" />
+                <Skeleton className="h-96 w-full lg:col-span-2" />
+              </div>
+            </div>
+        ) : user ? (
+          <>
+            <div className="mb-8">
+              <h2 className="font-headline text-3xl font-bold mb-4">Inventory Overview</h2>
+              <StatsCards items={stockItems} />
+            </div>
 
-        <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
-          <div className="lg:col-span-1">
-            <AddItemForm onAddItem={handleAddItem} />
+            <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+              <div className="lg:col-span-1">
+                <AddItemForm onAddItem={handleAddItem} />
+              </div>
+              <div className="lg:col-span-2">
+                <InventoryTable items={stockItems} onUpdateClick={handleUpdateClick} />
+              </div>
+            </div>
+          </>
+        ) : (
+          <div className="flex flex-col items-center justify-center rounded-xl border border-dashed bg-muted/50 p-12 text-center">
+            <Package className="mx-auto h-12 w-12 text-muted-foreground" />
+            <h2 className="mt-6 font-headline text-2xl font-bold">Welcome to StockWatch</h2>
+            <p className="mt-2 text-muted-foreground">Please log in or create an account to manage your inventory.</p>
+            <div className="mt-6 flex gap-4">
+              <Button asChild>
+                <Link href="/login">Login</Link>
+              </Button>
+              <Button variant="secondary" asChild>
+                <Link href="/signup">Sign Up</Link>
+              </Button>
+            </div>
           </div>
-          <div className="lg:col-span-2">
-            <InventoryTable items={stockItems} onUpdateClick={handleUpdateClick} />
-          </div>
-        </div>
+        )}
       </main>
 
       {selectedItem && (
