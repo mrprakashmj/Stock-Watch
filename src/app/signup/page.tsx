@@ -81,7 +81,7 @@ export default function SignupPage() {
                       <Input type="email" placeholder="you@example.com" {...field} />
                     </FormControl>
                     <FormMessage />
-                  </Ite`m>
+                  </FormItem>
                 )}
               />
               <FormField
