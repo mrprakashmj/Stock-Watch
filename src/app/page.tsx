@@ -6,10 +6,14 @@ import AddItemForm from '@/components/add-item-form';
 import InventoryTable from '@/components/inventory-table';
 import UpdateItemDialog from '@/components/update-item-dialog';
 import StatsCards from '@/components/stats-cards';
-import { Package } from 'lucide-react';
+import { LogOut, Package } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { useAuth } from '@/hooks/use-auth';
+import { logout } from '@/services/auth';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Skeleton } from '@/components/ui/skeleton';
 
 
 const initialStock: StockItem[] = [
@@ -20,6 +24,7 @@ const initialStock: StockItem[] = [
 ];
 
 export default function Home() {
+  const { user, loading } = useAuth();
   const [stockItems, setStockItems] = useState<StockItem[]>(initialStock);
   const [isUpdateDialogOpen, setUpdateDialogOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<StockItem | null>(null);
@@ -55,6 +60,19 @@ export default function Home() {
     });
   };
 
+  const handleLogout = async () => {
+    await logout();
+    toast({
+      title: 'Logged Out',
+      description: 'You have been successfully logged out.',
+    });
+  };
+  
+  const getInitials = (name: string | null | undefined) => {
+    if (!name) return '';
+    return name.split(' ').map(n => n[0]).join('').toUpperCase();
+  }
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       <header className="sticky top-0 z-10 w-full border-b bg-background/80 backdrop-blur-sm">
@@ -64,12 +82,32 @@ export default function Home() {
             <h1 className="font-headline text-2xl font-bold">StockWatch</h1>
           </div>
           <div className="flex items-center gap-4">
-            <Button variant="ghost" asChild>
-              <Link href="/login">Login</Link>
-            </Button>
-            <Button asChild>
-              <Link href="/signup">Sign Up</Link>
-            </Button>
+            {loading ? (
+              <Skeleton className="h-8 w-24" />
+            ) : user ? (
+              <>
+                <div className="flex items-center gap-2">
+                   <Avatar className="h-8 w-8">
+                    <AvatarImage src={user.photoURL || ''} alt={user.displayName || 'User'} />
+                    <AvatarFallback>{getInitials(user.displayName)}</AvatarFallback>
+                  </Avatar>
+                  <span className="hidden text-sm font-medium sm:inline">{user.displayName || user.email}</span>
+                </div>
+                <Button variant="ghost" size="icon" onClick={handleLogout}>
+                  <LogOut className="h-4 w-4" />
+                   <span className="sr-only">Logout</span>
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button variant="ghost" asChild>
+                  <Link href="/login">Login</Link>
+                </Button>
+                <Button asChild>
+                  <Link href="/signup">Sign Up</Link>
+                </Button>
+              </>
+            )}
           </div>
         </div>
       </header>

@@ -17,6 +17,8 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { UserPlus } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { signUpWithEmail } from '@/services/auth';
+import { useRouter } from 'next/navigation';
 
 const formSchema = z.object({
     name: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
@@ -29,6 +31,7 @@ const formSchema = z.object({
   });
 
 export default function SignupPage() {
+  const router = useRouter();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -39,13 +42,21 @@ export default function SignupPage() {
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
-    // TODO: Implement actual signup logic
-    toast({
-      title: 'Signup Submitted',
-      description: 'Signup functionality is not yet implemented.',
-    });
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    try {
+      await signUpWithEmail(values.name, values.email, values.password);
+      toast({
+        title: 'Account Created',
+        description: 'You have successfully signed up.',
+      });
+      router.push('/');
+    } catch (error: any) {
+      toast({
+        title: 'Sign Up Failed',
+        description: error.message,
+        variant: 'destructive',
+      });
+    }
   }
 
   return (
@@ -110,9 +121,13 @@ export default function SignupPage() {
                   </FormItem>
                 )}
               />
-              <Button type="submit" className="w-full">
-                <UserPlus className="mr-2 h-4 w-4" />
-                Sign Up
+              <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
+                {form.formState.isSubmitting ? 'Creating account...' : 
+                  <>
+                    <UserPlus className="mr-2 h-4 w-4" />
+                    Sign Up
+                  </>
+                }
               </Button>
             </form>
           </Form>
